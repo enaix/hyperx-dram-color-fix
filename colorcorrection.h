@@ -20,7 +20,7 @@ public:
 
     explicit ColorCorrection(QObject* parent = nullptr) : QObject(parent) {}
 
-    inline void correct_color(RGBController* ctrl, size_t zone_id);
+    void correct_color(RGBController* ctrl, size_t zone_id);
 };
 
 #endif // COLORCORRECTION_H

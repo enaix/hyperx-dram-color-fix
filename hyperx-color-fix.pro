@@ -34,17 +34,38 @@ INCLUDEPATH += \
     OpenRGB/   \
     OpenRGB/hidapi_wrapper/   \
     OpenRGB/dependencies/hidapi \
-    OpenRGB/RGBController/
+    OpenRGB/RGBController/ \
+    OpenRGB/i2c_smbus
 
 HEADERS += \
     OpenRGB/OpenRGBPluginInterface.h    \
-    OpenRGB/hidapi_wrapper/hidapi_wrapper.h
+    OpenRGB/hidapi_wrapper/hidapi_wrapper.h \ 
+    OpenRGB/i2c_smbus/i2c_smbus.h
 
 unix: {
     CONFIG += link_pkgconfig
 
     PKGCONFIG +=                                                                                \
         libusb-1.0
+    packagesExist(hidapi-hidraw) {
+        PKGCONFIG += hidapi-hidraw
+
+        #---------------------------------------------------------------------------------------#
+        # hidapi-hidraw >= 0.10.1 supports USAGE/USAGE_PAGE                                     #
+        # Define USE_HID_USAGE if hidapi-hidraw supports it                                     #
+        #---------------------------------------------------------------------------------------#
+        HIDAPI_HIDRAW_VERSION = $$system($$PKG_CONFIG --modversion hidapi-hidraw)
+        if(versionAtLeast(HIDAPI_HIDRAW_VERSION, "0.10.1")) {
+            DEFINES += USE_HID_USAGE
+        }
+    } else {
+        packagesExist(hidapi-libusb) {
+            PKGCONFIG += hidapi-libusb
+        } else {
+            PKGCONFIG += hidapi
+        }
+    }
+
 }
 
 # Default rules for deployment.

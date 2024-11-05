@@ -43,7 +43,7 @@ void SettingsWidget::fetchDevices()
     auto& controllers = res_mgr->GetRGBControllers();
     for (size_t i = 0; i < controllers.size(); i++)
     {
-        if (controllers[i].name == "HyperX DRAM") {
+        if (controllers[i]->name == "HyperX DRAM") {
             // Found controller
             inj.setRGBController(i);
 
@@ -54,7 +54,7 @@ void SettingsWidget::fetchDevices()
             }
             zone_boxes.clear();
 
-            for (size_t j = 0; j < controllers[i].zones.size(); j++)
+            for (size_t j = 0; j < controllers[i]->zones.size(); j++)
             {
                 auto* box = new QCheckBox(tr("Zone ") + QString::number(j));
                 connect(box, &QCheckBox::clicked, this, &SettingsWidget::onWidgetUpdate);
@@ -83,8 +83,8 @@ void SettingsWidget::onWidgetUpdate()
 {
     for (size_t i = 0; i < zone_boxes.size(); i++)
     {
-        if (zone_boxes[i].isChecked())
-            inj.cc.dim_zones.insert()
+        if (zone_boxes[i]->isChecked())
+            inj.cc.dim_zones.insert(i);
     }
 
     inj.cc.blue_chan_max = (uint8_t)blue->value();

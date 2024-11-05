@@ -28,6 +28,7 @@ void OpenRGBPlugin::Load(bool dark_theme, ResourceManager* resource_manager_ptr)
 QWidget* OpenRGBPlugin::GetWidget()
 {
     QWidget* wid = new SettingsWidget(resource_manager);
+    return wid;
 }
 
 QMenu* OpenRGBPlugin::GetTrayMenu()

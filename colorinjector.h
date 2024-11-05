@@ -15,7 +15,7 @@ class ColorInjector : public QObject
 public:
     ColorCorrection cc;
 
-    ColorInjector(ResourceManager* manager, QObject* parent = nullptr) : QObject(parent), mgr(manager), ctrl_id(SIZE_T_MAX), cc(this) {}
+    ColorInjector(ResourceManager* manager, QObject* parent = nullptr) : QObject(parent), cc(this), mgr(manager), ctrl_id(SIZE_MAX) {}
 
     void RegisterCallbacks();
 
