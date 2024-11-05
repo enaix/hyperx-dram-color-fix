@@ -40,6 +40,13 @@ HEADERS += \
     OpenRGB/OpenRGBPluginInterface.h    \
     OpenRGB/hidapi_wrapper/hidapi_wrapper.h
 
+unix: {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG +=                                                                                \
+        libusb-1.0
+}
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
