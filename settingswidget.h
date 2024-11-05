@@ -20,13 +20,19 @@ class SettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SettingsWidget(ResourceManager* mgr, QWidget *parent = nullptr);
+    SettingsWidget(ResourceManager* mgr, QWidget *parent = nullptr);
+
+    ~SettingsWidget();
 
     void initUI();
 
     void fetchDevices();
 
     static void onDevicesUpdated(void* wid);
+
+protected slots:
+    void onWidgetUpdate();
+
 signals:
     void settingsUpdated();
 
@@ -37,6 +43,8 @@ protected:
 
     QHBoxLayout* zone_lyt;
     std::vector<QCheckBox*> zone_boxes;
+    QSlider* blue;
+    QSlider* chan;
 };
 
 #endif // SETTINGSWIDGET_H

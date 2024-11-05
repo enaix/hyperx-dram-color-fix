@@ -7,6 +7,7 @@
 #include <unordered_set>
 
 
+
 class ColorCorrection : public QObject
 {
     Q_OBJECT

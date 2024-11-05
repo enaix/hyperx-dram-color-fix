@@ -2,7 +2,10 @@
 #define OPENRGBPLUGIN_H
 
 #include <QObject>
+
 #include "OpenRGBPluginInterface.h"
+
+#include "settingswidget.h"
 
 class OpenRGBPlugin : public QObject, OpenRGBPluginInterface
 {
@@ -23,6 +26,5 @@ public:
 
 protected:
     ResourceManager* resource_manager;
-
 };
 #endif // OPENRGBPLUGIN_H

@@ -7,29 +7,35 @@ SettingsWidget::SettingsWidget(ResourceManager* mgr, QWidget *parent)
     res_mgr->RegisterDetectionProgressCallback(&SettingsWidget::onDevicesUpdated, this);
 }
 
+SettingsWidget::~SettingsWidget()
+{
+    res_mgr->UnregisterDeviceListChangeCallback(&SettingsWidget::onDevicesUpdated, this);
+    res_mgr->UnregisterDetectionProgressCallback(&SettingsWidget::onDevicesUpdated, this);
+}
+
 void SettingsWidget::initUI()
 {
-    auto* lyt = new QFormLayout();
+    auto* lyt = new QFormLayout(static_cast<QWidget*>(this));
 
     zone_lyt = new QHBoxLayout();
     auto* label = new QLabel("Dim slots");
     lyt->addRow(label, zone_lyt);
 
-    auto* blue = new QSlider();
-    connect(blue, &QSlider::sliderReleased, this, &SettingsWidget::settingsUpdated);
+    blue = new QSlider();
+    connect(blue, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     blue->setMinimum(1);
     blue->setMaximum(255);
     auto* blue_label = new QLabel("Blue channel dimming");
     lyt->addRow(blue_label, blue);
 
-    auto* chan = new QSlider();
-    connect(chan, &QSlider::sliderReleased, this, &SettingsWidget::settingsUpdated);
+    chan = new QSlider();
+    connect(chan, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     chan->setMinimum(1);
     chan->setMaximum(255);
     auto* chan_label = new QLabel("R,G channels dimming");
     lyt->addRow(chan_label, chan);
 
-    setLayout(lyt);
+    //setLayout(lyt);
 }
 
 void SettingsWidget::fetchDevices()
@@ -51,8 +57,9 @@ void SettingsWidget::fetchDevices()
             for (size_t j = 0; j < controllers[i].zones.size(); j++)
             {
                 auto* box = new QCheckBox(tr("Zone ") + QString::number(j));
-                connect(box, &QCheckBox::clicked, this, &SettingsWidget::settingsUpdated);
+                connect(box, &QCheckBox::clicked, this, &SettingsWidget::onWidgetUpdate);
                 zone_lyt->addWidget(box);
+                zone_boxes.push_back(box);
             }
         }
     }
@@ -60,11 +67,27 @@ void SettingsWidget::fetchDevices()
 
 void SettingsWidget::onDevicesUpdated(void* wid)
 {
-    auto widget = reinterpret_cast<SettingsWidget*>(wid);
+    auto* widget = reinterpret_cast<SettingsWidget*>(wid);
     if (widget->res_mgr->GetDetectionPercent() == 100)
     {
         // List updated, get new settings
+        widget->fetchDevices();
     } else {
         // Disable elements
+        for (auto* box : widget->zone_boxes)
+            box->setDisabled(true);
     }
+}
+
+void SettingsWidget::onWidgetUpdate()
+{
+    for (size_t i = 0; i < zone_boxes.size(); i++)
+    {
+        if (zone_boxes[i].isChecked())
+            inj.cc.dim_zones.insert()
+    }
+
+    inj.cc.blue_chan_max = (uint8_t)blue->value();
+    inj.cc.color_chan_max_dim = (uint8_t)chan->value();
+    emit settingsUpdated();
 }
