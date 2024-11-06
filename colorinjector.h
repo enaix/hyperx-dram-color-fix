@@ -7,6 +7,8 @@
 #include "RGBController/RGBController.h"
 #include "ResourceManager.h"
 
+#include "logging.h"
+
 #include "colorcorrection.h"
 
 class ColorInjector : public QObject
@@ -24,6 +26,9 @@ public:
     static void callback(void* arg);
 
     RGBController* get_ctrl();
+
+public slots:
+    void onSettingsUpdate();
 
 protected:
     ResourceManager* mgr;

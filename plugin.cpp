@@ -10,6 +10,8 @@ OpenRGBPluginInfo OpenRGBPlugin::GetPluginInfo()
     info.Version = "0.0.1";
     info.Commit = "";
     info.URL = "";
+
+    info.Location = OPENRGB_PLUGIN_LOCATION_SETTINGS;
     info.Label = "HyperX DRAM CC";
     // TODO fill missing info
     return info;

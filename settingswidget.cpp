@@ -5,6 +5,8 @@ SettingsWidget::SettingsWidget(ResourceManager* mgr, QWidget *parent)
 {
     res_mgr->RegisterDeviceListChangeCallback(&SettingsWidget::onDevicesUpdated, this);
     res_mgr->RegisterDetectionProgressCallback(&SettingsWidget::onDevicesUpdated, this);
+    connect(this, &SettingsWidget::settingsUpdated, &inj, &ColorInjector::onSettingsUpdate);
+    initUI();
 }
 
 SettingsWidget::~SettingsWidget()
@@ -15,6 +17,7 @@ SettingsWidget::~SettingsWidget()
 
 void SettingsWidget::initUI()
 {
+    PLUGIN_DEBUG("SettingsWidget::initUI() : begin");
     auto* lyt = new QFormLayout(static_cast<QWidget*>(this));
 
     zone_lyt = new QHBoxLayout();
@@ -35,16 +38,19 @@ void SettingsWidget::initUI()
     auto* chan_label = new QLabel("R,G channels dimming");
     lyt->addRow(chan_label, chan);
 
+    PLUGIN_DEBUG("SettingsWidget::initUI() : finished");
     //setLayout(lyt);
 }
 
 void SettingsWidget::fetchDevices()
 {
+    PLUGIN_DEBUG("SettingsWidget::fetchDevices() : parsing controllers");
     auto& controllers = res_mgr->GetRGBControllers();
     for (size_t i = 0; i < controllers.size(); i++)
     {
         if (controllers[i]->name == "HyperX DRAM") {
             // Found controller
+            PLUGIN_DEBUG("SettingsWidget::fetchDevices() : found HyperX DRAM");
             inj.setRGBController(i);
 
             // Destroy all old checkboxes
@@ -54,6 +60,8 @@ void SettingsWidget::fetchDevices()
             }
             zone_boxes.clear();
 
+            PLUGIN_DEBUG("SettingsWidget::fetchDevices() : found " << controllers[i]->zones.size() << " zones");
+
             for (size_t j = 0; j < controllers[i]->zones.size(); j++)
             {
                 auto* box = new QCheckBox(tr("Zone ") + QString::number(j));
@@ -61,8 +69,12 @@ void SettingsWidget::fetchDevices()
                 zone_lyt->addWidget(box);
                 zone_boxes.push_back(box);
             }
+
+            PLUGIN_DEBUG("SettingsWidget::fetchDevices() : finished");
+            return;
         }
     }
+    PLUGIN_DEBUG("SettingsWidget::fetchDevices() : no controllers found");
 }
 
 void SettingsWidget::onDevicesUpdated(void* wid)
@@ -70,6 +82,7 @@ void SettingsWidget::onDevicesUpdated(void* wid)
     auto* widget = reinterpret_cast<SettingsWidget*>(wid);
     if (widget->res_mgr->GetDetectionPercent() == 100)
     {
+        PLUGIN_DEBUG("SettingsWidget::onDevicesUpdated() : 100%");
         // List updated, get new settings
         widget->fetchDevices();
     } else {
@@ -81,6 +94,7 @@ void SettingsWidget::onDevicesUpdated(void* wid)
 
 void SettingsWidget::onWidgetUpdate()
 {
+    PLUGIN_DEBUG("SettingsWidget::onWidgetUpdate() : fetching widgets info");
     for (size_t i = 0; i < zone_boxes.size(); i++)
     {
         if (zone_boxes[i]->isChecked())

@@ -14,6 +14,8 @@
 
 #include "ResourceManager.h"
 
+#include "logging.h"
+
 #include "colorinjector.h"
 
 class SettingsWidget : public QWidget

@@ -9,6 +9,18 @@ TEMPLATE = lib
 
 CONFIG += c++17 plugin silent
 
+# Build info
+GIT_COMMIT_ID = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-parse HEAD)
+PLUGIN_VERSION = 0.0.1
+GIT_COMMIT_DATE = $$system(git log -n 1 --pretty=format:"%ci")
+
+DEFINES += \
+    ENABLE_DEBUG \  # Enable or disable debugging (also checks for loglevel at runtime)
+    GIT_COMMIT_ID=\\"\"\"$$GIT_COMMIT_ID\\"\"\" \
+    VERSION_STRING=\\"\"\"$$PLUGIN_VERSION\\"\"\" \
+    GIT_COMMIT_DATE=\\"\"\"$$GIT_COMMIT_DATE\\"\"\" \
+
+
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
@@ -24,6 +36,7 @@ SOURCES += \
 HEADERS += \
     colorcorrection.h \
     colorinjector.h \
+    logging.h \
     plugin.h \
     settingswidget.h
 
@@ -35,17 +48,27 @@ INCLUDEPATH += \
     OpenRGB/hidapi_wrapper/   \
     OpenRGB/dependencies/hidapi \
     OpenRGB/RGBController/ \
-    OpenRGB/i2c_smbus
+    OpenRGB/i2c_smbus \
+    OpenRGB/dependencies/json/
 
 HEADERS += \
     OpenRGB/OpenRGBPluginInterface.h    \
+    OpenRGB/ResourceManager.h \
+    OpenRGB/ProfileManager.h \
+    OpenRGB/RGBController/RGBController.h \
+    OpenRGB/SettingsManager.h \
     OpenRGB/hidapi_wrapper/hidapi_wrapper.h \ 
-    OpenRGB/i2c_smbus/i2c_smbus.h
+    OpenRGB/i2c_smbus/i2c_smbus.h \
+    OpenRGB/dependencies/json/json.hpp \
+    OpenRGB/LogManager.h
+
+SOURCES += \
+    OpenRGB/LogManager.cpp
 
 unix: {
     CONFIG += link_pkgconfig
 
-    PKGCONFIG +=                                                                                \
+    PKGCONFIG += \
         libusb-1.0
     packagesExist(hidapi-hidraw) {
         PKGCONFIG += hidapi-hidraw

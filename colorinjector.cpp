@@ -14,6 +14,7 @@ void ColorInjector::setRGBController(size_t rgb_ctrl_id)
 
 void ColorInjector::callback(void *arg)
 {
+    PLUGIN_DEBUG("ColorInjector::callback() : begin");
     // Callback mutex is called, it's safe to access RGBController
     auto* inj = reinterpret_cast<ColorInjector*>(arg);
 
@@ -30,6 +31,8 @@ void ColorInjector::callback(void *arg)
     {
         inj->cc.correct_color(ctrl, i);
     }
+
+    PLUGIN_DEBUG("ColorInjector::callback() : finished");
 }
 
 RGBController *ColorInjector::get_ctrl()
@@ -37,4 +40,13 @@ RGBController *ColorInjector::get_ctrl()
     // Fetch current rgb controller
     // TODO add likely/unlikely
     return mgr->GetRGBControllers()[ctrl_id];
+}
+
+void ColorInjector::onSettingsUpdate()
+{
+    auto* ctrl = get_ctrl();
+    for (size_t i = 0; i < ctrl->zones.size(); i++)
+    {
+        cc.correct_color(ctrl, i);
+    }
 }
