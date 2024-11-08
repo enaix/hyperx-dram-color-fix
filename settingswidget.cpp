@@ -40,8 +40,10 @@ void SettingsWidget::initUI()
     auto* blue_label = new QLabel("Blue channel dimming");
     blue_lyt->addWidget(blue);
 
-    auto* blue_value = new QLabel("0");
-    connect(blue, &QSlider::valueChanged, blue_value, &QLabel::setText);
+    blue_value = new QLabel("0");
+    connect(blue, &QSlider::valueChanged, [=](int value){
+        blue_value->setText(QString::number(value));
+    });
     blue_lyt->addWidget(blue_value);
     blue_calib = new QPushButton("Calibrate");
     connect(blue_calib, &QPushButton::clicked, this, &SettingsWidget::calibrateBlue);
@@ -59,8 +61,10 @@ void SettingsWidget::initUI()
     auto* chan_label = new QLabel("R,G channels dimming");
     chan_lyt->addWidget(chan);
 
-    auto* chan_value = new QLabel("0");
-    connect(chan, &QSlider::valueChanged, chan_value, &QLabel::setText);
+    chan_value = new QLabel("0");
+    connect(chan, &QSlider::valueChanged, [=](int value){
+        chan_value->setText(QString::number(value));
+    });
     chan_lyt->addWidget(chan_value);
     white_calib = new QPushButton("Calibrate");
     connect(white_calib, &QPushButton::clicked, this, &SettingsWidget::calibrateWhite);

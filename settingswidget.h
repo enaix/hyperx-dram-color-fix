@@ -78,6 +78,8 @@ protected:
     QSlider* chan;
     QPushButton* blue_calib;
     QPushButton* white_calib;
+    QLabel* blue_value;
+    QLabel* chan_value;
 };
 
 #endif // SETTINGSWIDGET_H
