@@ -18,6 +18,22 @@
 
 #include "colorinjector.h"
 
+
+class SettingsCallback : public QObject
+{
+    Q_OBJECT
+public:
+    static void callback(void* wid)
+    {
+        auto* widget = reinterpret_cast<SettingsCallback*>(wid);
+        emit widget->devicesUpdated();
+    };
+
+signals:
+    void devicesUpdated();
+};
+
+
 class SettingsWidget : public QWidget
 {
     Q_OBJECT
@@ -30,7 +46,8 @@ public:
 
     void fetchDevices();
 
-    static void onDevicesUpdated(void* wid);
+public slots:
+    void onDevicesUpdated();
 
 protected slots:
     void onWidgetUpdate();
@@ -42,6 +59,7 @@ protected:
     ResourceManager* res_mgr;
 
     ColorInjector inj;
+    SettingsCallback sc;
 
     QHBoxLayout* zone_lyt;
     std::vector<QCheckBox*> zone_boxes;

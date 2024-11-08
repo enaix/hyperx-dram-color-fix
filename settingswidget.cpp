@@ -3,16 +3,17 @@
 SettingsWidget::SettingsWidget(ResourceManager* mgr, QWidget *parent)
     : QWidget(parent), res_mgr(mgr), inj(res_mgr, this)
 {
-    res_mgr->RegisterDeviceListChangeCallback(&SettingsWidget::onDevicesUpdated, this);
-    res_mgr->RegisterDetectionProgressCallback(&SettingsWidget::onDevicesUpdated, this);
+    res_mgr->RegisterDeviceListChangeCallback(&SettingsCallback::callback, &sc);
+    res_mgr->RegisterDetectionProgressCallback(&SettingsCallback::callback, &sc);
     connect(this, &SettingsWidget::settingsUpdated, &inj, &ColorInjector::onSettingsUpdate);
+    connect(&sc, &SettingsCallback::devicesUpdated, this, &SettingsWidget::onDevicesUpdated);
     initUI();
 }
 
 SettingsWidget::~SettingsWidget()
 {
-    res_mgr->UnregisterDeviceListChangeCallback(&SettingsWidget::onDevicesUpdated, this);
-    res_mgr->UnregisterDetectionProgressCallback(&SettingsWidget::onDevicesUpdated, this);
+    res_mgr->UnregisterDeviceListChangeCallback(&SettingsCallback::callback, &sc);
+    res_mgr->UnregisterDetectionProgressCallback(&SettingsCallback::callback, &sc);
 }
 
 void SettingsWidget::initUI()
@@ -24,14 +25,14 @@ void SettingsWidget::initUI()
     auto* label = new QLabel("Dim slots");
     lyt->addRow(label, zone_lyt);
 
-    blue = new QSlider();
+    blue = new QSlider(Qt::Orientation::Horizontal);
     connect(blue, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     blue->setMinimum(1);
     blue->setMaximum(255);
     auto* blue_label = new QLabel("Blue channel dimming");
     lyt->addRow(blue_label, blue);
 
-    chan = new QSlider();
+    chan = new QSlider(Qt::Orientation::Horizontal);
     connect(chan, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     chan->setMinimum(1);
     chan->setMaximum(255);
@@ -77,17 +78,16 @@ void SettingsWidget::fetchDevices()
     PLUGIN_DEBUG("SettingsWidget::fetchDevices() : no controllers found");
 }
 
-void SettingsWidget::onDevicesUpdated(void* wid)
+void SettingsWidget::onDevicesUpdated()
 {
-    auto* widget = reinterpret_cast<SettingsWidget*>(wid);
-    if (widget->res_mgr->GetDetectionPercent() == 100)
+    if (res_mgr->GetDetectionPercent() == 100)
     {
         PLUGIN_DEBUG("SettingsWidget::onDevicesUpdated() : 100%");
         // List updated, get new settings
-        widget->fetchDevices();
+        fetchDevices(); // TODO emit signal
     } else {
         // Disable elements
-        for (auto* box : widget->zone_boxes)
+        for (auto* box : zone_boxes)
             box->setDisabled(true);
     }
 }
