@@ -16,8 +16,14 @@ void ColorInjector::callback(void *arg)
     // Callback mutex is called, it's safe to access RGBController
     auto* inj = reinterpret_cast<ColorInjector*>(arg);
 
-    // Color or mode has been updated, we need to set new color
+    if (inj->_ignore_callback)
+    {
+        // We have already applied color
+        inj->_ignore_callback = false;
+        return;
+    }
 
+    // Color or mode has been updated, we need to set new color
     auto* ctrl = inj->get_ctrl();
     // Works only in Direct mode
     if (ctrl->active_mode != HYPERX_MODE_DIRECT) return; // TODO apply old colormap
@@ -82,5 +88,6 @@ void ColorInjector::resetColormap()
 void ColorInjector::apply()
 {
     auto* ctrl = get_ctrl();
-    ctrl->DeviceCallThreadFunction();
+    _ignore_callback = true;
+    ctrl->UpdateLEDs();
 }

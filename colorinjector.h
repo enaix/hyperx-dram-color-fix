@@ -18,7 +18,7 @@ class ColorInjector : public QObject
 public:
     ColorCorrection cc;
 
-    ColorInjector(ResourceManager* manager, QObject* parent = nullptr) : QObject(parent), cc(this), mgr(manager), ctrl_id(SIZE_MAX) {}
+    ColorInjector(ResourceManager* manager, QObject* parent = nullptr) : QObject(parent), cc(this), mgr(manager), ctrl_id(SIZE_MAX), _ignore_callback(false) {}
 
     void RegisterCallbacks();
 
@@ -38,6 +38,7 @@ protected:
     ResourceManager* mgr;
     size_t ctrl_id;
     std::vector<RGBColor> _colormap;
+    bool _ignore_callback;
 
     void resetColormap();
     void apply();
