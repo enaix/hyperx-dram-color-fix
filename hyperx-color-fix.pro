@@ -63,7 +63,8 @@ HEADERS += \
     OpenRGB/LogManager.h
 
 SOURCES += \
-    OpenRGB/LogManager.cpp
+    OpenRGB/LogManager.cpp \
+    OpenRGB/SettingsManager.cpp
 
 unix:!macos {
     CONFIG += link_pkgconfig

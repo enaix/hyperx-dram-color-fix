@@ -82,6 +82,7 @@ void SettingsWidget::fetchDevices()
 
 void SettingsWidget::loadSettings()
 {
+    std::filesystem::create_directories(res_mgr->GetConfigurationDirectory() / "plugins" / "settings"); // If the directory doesn't exist yet
     settings.LoadSettings(res_mgr->GetConfigurationDirectory() / "plugins" / "settings" / "HyperXDRAMcc.json");
     auto b_chan = settings.GetSettings("blue_chan_max"),
         rg_chan = settings.GetSettings("color_chan_max"),

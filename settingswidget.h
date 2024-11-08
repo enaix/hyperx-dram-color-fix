@@ -11,6 +11,7 @@
 #include <QSlider>
 
 #include <vector>
+#include <filesystem>
 
 #include "ResourceManager.h"
 #include "SettingsManager.h"
