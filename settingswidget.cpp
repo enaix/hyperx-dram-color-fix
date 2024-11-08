@@ -5,8 +5,13 @@ SettingsWidget::SettingsWidget(ResourceManager* mgr, QWidget *parent)
 {
     res_mgr->RegisterDeviceListChangeCallback(&SettingsCallback::callback, &sc);
     res_mgr->RegisterDetectionProgressCallback(&SettingsCallback::callback, &sc);
+
     connect(this, &SettingsWidget::settingsUpdated, &inj, &ColorInjector::onSettingsUpdate);
+    connect(this, &SettingsWidget::calibrate, &inj, &ColorInjector::setTmpColor);
+    connect(this, &SettingsWidget::stopCalibration, &inj, &ColorInjector::unsetTmpColor);
+
     connect(&sc, &SettingsCallback::devicesUpdated, this, &SettingsWidget::onDevicesUpdated);
+
     initUI();
 }
 
@@ -25,21 +30,43 @@ void SettingsWidget::initUI()
     auto* label = new QLabel("Dim slots");
     lyt->addRow(label, zone_lyt);
 
+    // Blue channel
+    auto* blue_lyt = new QHBoxLayout();
     blue = new QSlider(Qt::Orientation::Horizontal);
     connect(blue, &QSlider::sliderMoved, this, &SettingsWidget::onSliderMoved);
     connect(blue, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     blue->setMinimum(1);
     blue->setMaximum(255);
     auto* blue_label = new QLabel("Blue channel dimming");
-    lyt->addRow(blue_label, blue);
+    blue_lyt->addWidget(blue);
 
+    auto* blue_value = new QLabel("0");
+    connect(blue, &QSlider::valueChanged, blue_value, &QLabel::setText);
+    blue_lyt->addWidget(blue_value);
+    blue_calib = new QPushButton("Calibrate");
+    connect(blue_calib, &QPushButton::clicked, this, &SettingsWidget::calibrateBlue);
+    blue_lyt->addWidget(blue_calib);
+    lyt->addRow(blue_label, blue_lyt);
+    // ---
+
+    // R,G channels
+    auto* chan_lyt = new QHBoxLayout();
     chan = new QSlider(Qt::Orientation::Horizontal);
     connect(chan, &QSlider::sliderMoved, this, &SettingsWidget::onSliderMoved);
     connect(chan, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     chan->setMinimum(1);
     chan->setMaximum(255);
     auto* chan_label = new QLabel("R,G channels dimming");
-    lyt->addRow(chan_label, chan);
+    chan_lyt->addWidget(chan);
+
+    auto* chan_value = new QLabel("0");
+    connect(chan, &QSlider::valueChanged, chan_value, &QLabel::setText);
+    chan_lyt->addWidget(chan_value);
+    white_calib = new QPushButton("Calibrate");
+    connect(white_calib, &QPushButton::clicked, this, &SettingsWidget::calibrateWhite);
+    chan_lyt->addWidget(white_calib);
+    lyt->addRow(chan_label, chan_lyt);
+    // ---
 
     PLUGIN_DEBUG("SettingsWidget::initUI() : finished");
     //setLayout(lyt);
@@ -159,4 +186,28 @@ void SettingsWidget::onSliderMoved()
     inj.cc.blue_chan_max = (uint8_t)blue->value();
     inj.cc.color_chan_max_dim = (uint8_t)chan->value();
     emit settingsUpdated();
+}
+
+void SettingsWidget::calibrateBlue()
+{
+    if (blue_calib->text() == "Calibrate")
+    {
+        emit calibrate(ToRGBColor(0, 0, 255));
+        blue_calib->setText("Stop");
+    } else {
+        emit stopCalibration();
+        blue_calib->setText("Calibrate");
+    }
+}
+
+void SettingsWidget::calibrateWhite()
+{
+    if (white_calib->text() == "Calibrate")
+    {
+        emit calibrate(ToRGBColor(255, 255, 255));
+        white_calib->setText("Stop");
+    } else {
+        emit stopCalibration();
+        white_calib->setText("Calibrate");
+    }
 }

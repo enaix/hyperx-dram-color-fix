@@ -32,6 +32,8 @@ void ColorInjector::callback(void *arg)
         inj->cc.correct_color(ctrl, i);
     }
 
+    // TODO call DeviceUpdateLEDs
+
     PLUGIN_DEBUG("ColorInjector::callback() : finished");
 }
 
@@ -49,4 +51,33 @@ void ColorInjector::onSettingsUpdate()
     {
         cc.correct_color(ctrl, i);
     }
+    // TODO call DeviceUpdateLEDs
+}
+
+void ColorInjector::setTmpColor(RGBColor c)
+{
+    auto* ctrl = get_ctrl();
+    _colormap = ctrl->colors;
+    for (size_t i = 0; i < _colormap.size(); i++)
+    {
+        ctrl->colors[i] = c;
+    }
+
+    // TODO call DeviceUpdateLEDs
+}
+
+void ColorInjector::unsetTmpColor()
+{
+    resetColormap();
+}
+
+void ColorInjector::resetColormap()
+{
+    auto* ctrl = get_ctrl();
+    for (size_t i = 0; i < _colormap.size(); i++)
+    {
+        ctrl->colors[i] = _colormap[i];
+    }
+
+    // TODO call DeviceUpdateLEDs
 }

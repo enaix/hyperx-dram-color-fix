@@ -57,9 +57,13 @@ public slots:
 protected slots:
     void onWidgetUpdate();
     void onSliderMoved();
+    void calibrateBlue();
+    void calibrateWhite();
 
 signals:
     void settingsUpdated();
+    void calibrate(RGBColor c);
+    void stopCalibration();
 
 protected:
     ResourceManager* res_mgr;
@@ -72,6 +76,8 @@ protected:
     std::vector<QCheckBox*> zone_boxes;
     QSlider* blue;
     QSlider* chan;
+    QPushButton* blue_calib;
+    QPushButton* white_calib;
 };
 
 #endif // SETTINGSWIDGET_H

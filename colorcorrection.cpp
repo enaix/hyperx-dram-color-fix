@@ -19,3 +19,9 @@ void ColorCorrection::correct_color(RGBController *ctrl, size_t zone_id)
         ctrl->zones[zone_id].colors[led_id] = rg_chan | b_chan_corr;
     }
 }
+
+void ColorCorrection::set_color_no_cc(RGBController *ctrl, size_t zone_id, size_t led_id, RGBColor c)
+{
+    // Set plain color without color correction
+    ctrl->zones[zone_id].colors[led_id] = c;
+}

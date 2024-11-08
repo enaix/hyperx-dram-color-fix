@@ -21,6 +21,8 @@ public:
     explicit ColorCorrection(QObject* parent = nullptr) : QObject(parent) {}
 
     void correct_color(RGBController* ctrl, size_t zone_id);
+
+    inline void set_color_no_cc(RGBController* ctrl, size_t zone_id, size_t led_id, RGBColor c);
 };
 
 #endif // COLORCORRECTION_H

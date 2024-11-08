@@ -30,10 +30,15 @@ public:
 public slots:
     void onSettingsUpdate();
 
+    void setTmpColor(RGBColor c);
+    void unsetTmpColor();
+
 protected:
     ResourceManager* mgr;
     size_t ctrl_id;
     std::vector<RGBColor> _colormap;
+
+    void resetColormap();
 };
 
 #endif // COLORINJECTOR_H
