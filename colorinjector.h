@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "RGBController/RGBController.h"
+#include "Controllers/HyperXDRAMController/RGBController_HyperXDRAM.h" // Load constants
 #include "ResourceManager.h"
 
 #include "logging.h"
@@ -39,6 +40,7 @@ protected:
     std::vector<RGBColor> _colormap;
 
     void resetColormap();
+    void apply();
 };
 
 #endif // COLORINJECTOR_H

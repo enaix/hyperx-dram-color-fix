@@ -1,7 +1,5 @@
 #include "colorinjector.h"
 
-#include "Controllers/HyperXDRAMController/RGBController_HyperXDRAM.h"
-
 void ColorInjector::RegisterCallbacks()
 {
     get_ctrl()->RegisterUpdateCallback(&ColorInjector::callback, this);
@@ -25,14 +23,13 @@ void ColorInjector::callback(void *arg)
     if (ctrl->active_mode != HYPERX_MODE_DIRECT) return; // TODO apply old colormap
 
     // Store a copy of original colormap
-    inj->_colormap = ctrl->colors; // TODO check if we need to apply old one
+    //inj->_colormap = ctrl->colors; // TODO check if we need to apply old one
 
     for (size_t i = 0; i < ctrl->zones.size(); i++)
     {
         inj->cc.correct_color(ctrl, i);
     }
-
-    // TODO call DeviceUpdateLEDs
+    inj->apply();
 
     PLUGIN_DEBUG("ColorInjector::callback() : finished");
 }
@@ -40,7 +37,6 @@ void ColorInjector::callback(void *arg)
 RGBController *ColorInjector::get_ctrl()
 {
     // Fetch current rgb controller
-    // TODO add likely/unlikely
     return mgr->GetRGBControllers()[ctrl_id];
 }
 
@@ -51,19 +47,19 @@ void ColorInjector::onSettingsUpdate()
     {
         cc.correct_color(ctrl, i);
     }
-    // TODO call DeviceUpdateLEDs
+    apply();
 }
 
 void ColorInjector::setTmpColor(RGBColor c)
 {
     auto* ctrl = get_ctrl();
+    if (ctrl->active_mode != HYPERX_MODE_DIRECT) return;
     _colormap = ctrl->colors;
     for (size_t i = 0; i < _colormap.size(); i++)
     {
         ctrl->colors[i] = c;
     }
-
-    // TODO call DeviceUpdateLEDs
+    apply();
 }
 
 void ColorInjector::unsetTmpColor()
@@ -74,10 +70,17 @@ void ColorInjector::unsetTmpColor()
 void ColorInjector::resetColormap()
 {
     auto* ctrl = get_ctrl();
+    if (ctrl->active_mode != HYPERX_MODE_DIRECT) return;
     for (size_t i = 0; i < _colormap.size(); i++)
     {
         ctrl->colors[i] = _colormap[i];
     }
 
-    // TODO call DeviceUpdateLEDs
+    apply();
+}
+
+void ColorInjector::apply()
+{
+    auto* ctrl = get_ctrl();
+    ctrl->DeviceCallThreadFunction();
 }
