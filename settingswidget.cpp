@@ -26,6 +26,7 @@ void SettingsWidget::initUI()
     lyt->addRow(label, zone_lyt);
 
     blue = new QSlider(Qt::Orientation::Horizontal);
+    connect(blue, &QSlider::sliderMoved, this, &SettingsWidget::onSliderMoved);
     connect(blue, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     blue->setMinimum(1);
     blue->setMaximum(255);
@@ -33,6 +34,7 @@ void SettingsWidget::initUI()
     lyt->addRow(blue_label, blue);
 
     chan = new QSlider(Qt::Orientation::Horizontal);
+    connect(chan, &QSlider::sliderMoved, this, &SettingsWidget::onSliderMoved);
     connect(chan, &QSlider::sliderReleased, this, &SettingsWidget::onWidgetUpdate);
     chan->setMinimum(1);
     chan->setMaximum(255);
@@ -78,13 +80,59 @@ void SettingsWidget::fetchDevices()
     PLUGIN_DEBUG("SettingsWidget::fetchDevices() : no controllers found");
 }
 
+void SettingsWidget::loadSettings()
+{
+    settings.LoadSettings(res_mgr->GetConfigurationDirectory() / "plugins" / "settings" / "HyperXDRAMcc.json");
+    auto b_chan = settings.GetSettings("blue_chan_max"),
+        rg_chan = settings.GetSettings("color_chan_max"),
+        boxes = settings.GetSettings("zones");
+
+    if (!b_chan.empty())
+    {
+        blue->setValue((int)b_chan);
+        inj.cc.blue_chan_max = (uint8_t)b_chan;
+    }
+
+    if (!rg_chan.empty())
+    {
+        chan->setValue((int)rg_chan);
+        inj.cc.color_chan_max_dim = (uint8_t)rg_chan;
+    }
+
+    if (!boxes.empty())
+    {
+        for (size_t i : boxes)
+        {
+            if (i >= zone_boxes.size())
+            {
+                // Zones are changed, so the user should update them manually
+                break;
+            }
+
+            zone_boxes[i]->setChecked(true);
+            inj.cc.dim_zones.insert(i);
+        }
+    }
+
+    emit settingsUpdated();
+}
+
+void SettingsWidget::saveSettings()
+{
+    settings.SetSettings("blue_chan_max", inj.cc.blue_chan_max);
+    settings.SetSettings("color_chan_max", inj.cc.color_chan_max_dim);
+    std::vector<int> boxes(inj.cc.dim_zones.begin(), inj.cc.dim_zones.end());
+    settings.SetSettings("zones", boxes);
+    settings.SaveSettings();
+}
+
 void SettingsWidget::onDevicesUpdated()
 {
     if (res_mgr->GetDetectionPercent() == 100)
     {
         PLUGIN_DEBUG("SettingsWidget::onDevicesUpdated() : 100%");
-        // List updated, get new settings
-        fetchDevices(); // TODO emit signal
+        fetchDevices();
+        loadSettings();
     } else {
         // Disable elements
         for (auto* box : zone_boxes)
@@ -100,7 +148,13 @@ void SettingsWidget::onWidgetUpdate()
         if (zone_boxes[i]->isChecked())
             inj.cc.dim_zones.insert(i);
     }
+    // Slider info is already updated
+    emit settingsUpdated();
+    saveSettings();
+}
 
+void SettingsWidget::onSliderMoved()
+{
     inj.cc.blue_chan_max = (uint8_t)blue->value();
     inj.cc.color_chan_max_dim = (uint8_t)chan->value();
     emit settingsUpdated();

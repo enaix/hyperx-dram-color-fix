@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "ResourceManager.h"
+#include "SettingsManager.h"
 
 #include "logging.h"
 
@@ -46,17 +47,22 @@ public:
 
     void fetchDevices();
 
+    void loadSettings();
+
+    void saveSettings();
 public slots:
     void onDevicesUpdated();
 
 protected slots:
     void onWidgetUpdate();
+    void onSliderMoved();
 
 signals:
     void settingsUpdated();
 
 protected:
     ResourceManager* res_mgr;
+    SettingsManager settings;
 
     ColorInjector inj;
     SettingsCallback sc;
