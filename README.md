@@ -1,5 +1,7 @@
 # hyperx-dram-color-fix
 
+![hyperx dram color bug](res/banner.jpg)
+
 Fix for dim blue channel bug for mixed HyperX DRAM models
 
 ## Description
