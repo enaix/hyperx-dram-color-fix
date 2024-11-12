@@ -7,13 +7,13 @@ void ColorCorrection::correct_color(RGBController *ctrl, size_t zone_id)
         RGBColor old_color = ctrl->zones[zone_id].colors[led_id];
         // Check zone map and apply the corresponding color
 
-        uint8_t b_chan = old_color & 0xFF0000;
+        uint8_t b_chan = old_color & 0x0000FF;
 
         // Limit blue between 0 and blue_chan_max for bright channels
         uint8_t b_chan_corr = (dim_zones.find(zone_id) == dim_zones.cend() ?
                                                    b_chan * blue_chan_max / 0xFF : b_chan);
 
-        uint16_t rg_chan = old_color & 0xFFFF * (blue_chan_max + color_chan_max_dim - b_chan_corr);
+        uint16_t rg_chan = old_color & 0xFFFF00 * (blue_chan_max + color_chan_max_dim - b_chan_corr);
         // TODO check if we need to clamp
 
         ctrl->zones[zone_id].colors[led_id] = rg_chan | b_chan_corr;
